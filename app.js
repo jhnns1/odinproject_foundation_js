@@ -1,117 +1,129 @@
-/* let admin, name;
+// GAME LOGIC
 
-name = "John";
-
-admin = name;
-
-alert(admin); */
-/* let ourPlanetName = "earth";
-
-let currentVisitor;
- */
-
-/* function add7(number) {
-  return number + 7;
-}
-
-function multiply(factor1, factor2) {
-  return factor1 * factor2;
-}
-
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
-function lastLetter(str) {
-  let len = str.length;
-  return str.charAt(len - 1);
-} */
-
-/* let answer = parseInt(
-  prompt("Please enter a number you would like to FizzBuzz up to: ")
-);
-
-function fizzBuzz(answer) {
-  for (let step = 1; step <= answer; step++) {
-    let printOut;
-
-    if (step % 15 === 0) {
-      console.log("FizzBuzz");
-    } else if (step % 3 === 0) {
-      console.log("Fizz");
-    } else if (step % 5 === 0) {
-      console.log("Buzz");
-    } else {
-      console.log(step);
-    }
-  }
-}
-
-fizzBuzz(answer); */
+let playerScore = 0;
+let computerScore = 0;
+let roundWinner = "";
 
 function getComputerChoice() {
   let i = Math.floor(Math.random() * 3);
-  let gameFigure = ["rock", "scissor", "paper"];
+  let gameFigure = ["rock", "scissors", "paper"];
   return gameFigure[i];
 }
 
 function playRound(playerSelection, computerSelection) {
   let tmp = playerSelection.toLowerCase();
-  let winner;
+
   switch (tmp) {
     case "rock":
       if (computerSelection == "rock") {
-        console.log("Draw!");
-        winner = 0;
-      } else if (computerSelection == "scissor") {
-        console.log(
-          "You Win! " + playerSelection + " beats " + computerSelection
-        );
-        winner = 1;
+        roundWinner = "Draw";
+      } else if (computerSelection == "scissors") {
+        playerScore++;
+        roundWinner = "Player";
       } else {
-        console.log("You Loose! Paper beats Rock");
-        winner = -1;
+        computerScore++;
+        roundWinner = "Computer";
       }
-      return winner;
-    case "scissor":
+      break;
+    case "scissors":
       if (computerSelection == "rock") {
-        console.log("You Loose! Rock bets Scissors");
-        winner = -1;
-      } else if (computerSelection == "scissor") {
-        console.log("Draw!");
-        winner = 0;
+        computerScore++;
+        roundWinner = "Computer";
+      } else if (computerSelection == "scissors") {
+        roundWinner = "Draw";
       } else {
-        console.log("You Win! Scissors beats Paper");
-        winner = 1;
+        playerScore++;
+        roundWinner = "Player";
       }
       break;
     default: //paper
       if (computerSelection == "rock") {
-        console.log("You Win! Paper beats Rock");
-        winner = 1;
-      } else if (computerSelection == "scissor") {
-        console.log("You Loose! Scissor beats Paper");
-        winner = -1;
+        playerScore++;
+        roundWinner = "Player";
+      } else if (computerSelection == "scissors") {
+        computerScore++;
+        roundWinner = "Computer";
       } else {
-        console.log("Draw!");
-        winner = 0;
+        roundWinner = "Draw";
       }
-      return winner;
+  }
+  console.log(playerScore, computerScore, roundWinner);
+}
+
+// UI
+const scissorsBtn = document.querySelector("#scissors");
+const paperBtn = document.querySelector("#paper");
+const rockBtn = document.querySelector("#rock");
+const signContainer = document.querySelector(".sign-container");
+const playerScorePara = document.getElementById("playerScore");
+const computerScorePara = document.getElementById("computerScore");
+const scoreMessagePara = document.getElementById("scoreMessage");
+const playerSignDiv = document.getElementById("playerSign");
+const computerSignDiv = document.getElementById("computerSign");
+const winnerIsH1 = document.createElement("h1");
+winnerIsH1.classList.add("h1");
+
+scissorsBtn.addEventListener("click", () => handleClick("scissors"));
+paperBtn.addEventListener("click", () => handleClick("paper"));
+rockBtn.addEventListener("click", () => handleClick("rock"));
+
+function handleClick(playerSelection) {
+  if (isGameOver()) {
+    if (playerScore === 5) {
+      winnerIsH1.textContent = "Player has won, congrats. 🎉";
+      signContainer.appendChild(winnerIsH1);
+    } else {
+      winnerIsH1.textContent = "Computer has won. Better luck next time.";
+      signContainer.appendChild(winnerIsH1);
+    }
+    return;
+  }
+
+  const computerSelection = getComputerChoice();
+  playRound(playerSelection, computerSelection);
+  updateSign(playerSelection, computerSelection);
+  updateScore();
+}
+
+function isGameOver() {
+  return playerScore === 5 || computerScore === 5;
+}
+
+function updateSign(playerSelection, computerSelection) {
+  switch (playerSelection) {
+    case "rock":
+      playerSignDiv.textContent = "👊";
+      break;
+    case "scissors":
+      playerSignDiv.textContent = "✌️";
+      break;
+    case "paper":
+      playerSignDiv.textContent = "🤚";
+      break;
+  }
+
+  switch (computerSelection) {
+    case "rock":
+      computerSignDiv.textContent = "👊";
+      break;
+    case "scissors":
+      computerSignDiv.textContent = "✌️";
+      break;
+    case "paper":
+      computerSignDiv.textContent = "🤚";
+      break;
   }
 }
 
-function game() {
-  let currentStanding = 0;
-  for (i = 0; i < 5; i++) {
-    choice = prompt("Welche Figur wählst du (Scissor, Rock, Paper)?");
-    currentStanding += playRound(choice, getComputerChoice());
-    console.log(currentStanding);
+function updateScore() {
+  if (roundWinner === "Draw") {
+    scoreMessagePara.textContent = "It's a draw.";
+  } else if (roundWinner === "Player") {
+    scoreMessagePara.textContent = "You won!";
+  } else if (roundWinner === "Computer") {
+    scoreMessagePara.textContent = "You lost.";
   }
-  currentStanding < 0
-    ? console.log("You loose 😭 ")
-    : currentStanding == 0
-    ? console.log("Draw")
-    : console.log("Winner, winner, chicken diner!");
-}
 
-game();
+  playerScorePara.textContent = `Player: ${playerScore}`;
+  computerScorePara.textContent = `Computer: ${computerScore}`;
+}
